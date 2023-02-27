@@ -1,4 +1,6 @@
 const fs = require('fs');
+const colors = require('colors')
+console.log('texto con colores'.bgCyan)
 
 const mdLinks = (path, options) => {
   return new Promise((resolve, reject) => {
