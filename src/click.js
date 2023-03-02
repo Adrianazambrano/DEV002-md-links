@@ -1,5 +1,5 @@
-const {mdLinks}= require('../index.js');
-mdLinks('unaruta/que/no/existe.md')
+const {mdLinks}= require('./index');
+mdLinks('readme.md')
 .then(()=>{
 
 })
