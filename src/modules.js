@@ -1,10 +1,10 @@
 const colors = require('colors')
 const fs = require('fs');
 const path = require('path')
-// const {isAbsolute} = require('path')
 
  //1. indentificamos si la ruta existe
     const existsRoute = (route) => fs.existsSync(route)
+
  // 2. La convertimos  a una ruta absoluta
  const routeAbsolute = (route) => {
    const isAbsolute = path.isAbsolute(route);
@@ -15,6 +15,7 @@ const path = require('path')
      return convertedRoute;
    }
  };
+ 
   //3. Verificamos si es un directorio:
   const isdirectory = (route) => fs.statSync(route).isDirectory() // return true or false
  
@@ -35,14 +36,14 @@ const readAllFileDirectory = (route, arrayOfFiles = []) => {
 
 
  // leyendo un archivo:
-  fs.readFile(pathRouter,'utf-8',(error,pathRouter) => {
-    if(error){
-      console.log(error)
-    } else{
-      console.log(pathRouter.bgMagenta)
-      console.log('ext:'+ path.extname(pathRouter).bgBlue)
-    }
-  })
+  // fs.readFile(pathRouter,'utf-8',(error,pathRouter) => {
+  //   if(error){
+  //     console.log(error)
+  //   } else{
+  //     console.log(pathRouter.bgMagenta)
+  //     console.log('ext:'+ path.extname(pathRouter).bgBlue)
+  //   }
+  // })
  
 
 
