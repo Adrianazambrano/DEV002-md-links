@@ -3,11 +3,13 @@ const colors = require('colors')
 const fs = require('fs');
 const { resolve } = require('path');
 const path = require('path')
+const axios = require('axios');
+const { count } = require('console');
 
- //1. indentificamos si la ruta existe
+// indentificamos si la ruta existe
     const existsRoute = (route) => fs.existsSync(route)
 
- // 2. La convertimos  a una ruta absoluta
+ // La convertimos  a una ruta absoluta
  const routeAbsolute = (route) => {
    const isAbsolute = path.isAbsolute(route);
    if (isAbsolute === true) {
@@ -18,37 +20,81 @@ const path = require('path')
    }
  };
  
-  //3. Verificamos si es un directorio:
+  // Verificamos si es un directorio:
   const isdirectory = (route) => fs.statSync(route).isDirectory() // return true or false
 
- // 4. Si es un Archivo,(1)verificamos que la ext sea .md
- // si es .md  (2) entramos a leer y (3) retornar un array con todos los links
- const getLinksmd = (route) => {
-  // es .md?:
-    if((fs.path.extname(route) === '.md') ){
-      // extraer los links
-      let arrayLinks = []
-      const links = /(https?:\/\/)?(www\.)?[a-z0-9.-]+\.(a-z)+/gi
-      return new Promise(function(resolve, reject){
-        readFile(pathFile,'utf-8', (error,data) =>{
-            if(error){
-                reject(error)
-            }
+ // Si es un Archivo,(1)verificamos que la ext sea .md
+const isMd = (route) => {
+  if(path.extname(route) === '.md') {
+    return true
+  }  else{
+    return false
+  }
+}
 
-           const match =  resolve(data.match(links));
-           arrayLinks.push({match})
-        })
-    }) 
-    }
-    else{
-      // no es un archivo .md/ no hay archivos .md 
-    }
-    //leyendo un archivo:
-  
+ // si es .md entramos a leer y retornar un array de objetos:
+ 
+ const getLinks = (route) => {
+   let arrayLinks = [];
+   const textLinks = /\[(\w+.+?)\]\((https?:\/\/[^\s]+)(?: "(.+)")?\)|(https?:\/\/[^\s]+)/gi;
+   const links = /\((https?:\/\/[^\s]+)(?: "(.+)")?\)|(https?:\/\/[^\s]+)/gi;
+   const text = /\[(\w+.+?)\]/gi;
+   return new Promise(function (resolve, reject) {
+     fs.readFile(route, "utf-8", (error, data) => {
+       if (error) {
+         reject(error);
+       } else {
+         const match = data.match(textLinks);
+
+         match.forEach((item) => {
+           const href = item.match(links)[0];
+           const descripText = item.match(text)[0];
+                    
+           arrayLinks.push({ href: href.slice(1,-1), text: descripText.slice(1,-1), file: route });
+         });
+        
+         
+         resolve(arrayLinks);
+       }
+     });
+   });
+ };
+
+
+
+// para las estaditiscas de pasa directamnete el archivo .md o en caso
+// de ser directorio, el array de todos los archivos .md
+
+ // si la option = --validate, validar los links encontrados usando axios:
+ const validate = (array)=>{
+  const validateResult = array.map((link) => {
+     return axios.get(link.href)
+     .then(response =>{
+       return {...link, status:response.status, ok:response.statusText}
+     }).catch(err =>{
+       return {...link, status:404, ok:'fail'}
+     }) 
+     
+   })
+   return Promise.all(validateResult)
  }
+ 
+const stats = (arrayObject) => {
+  const arrayhref = arrayObject.map((file) => file.href);
+  const arrayDuplicateNoRepeat = new Set(arrayhref);
+  return {Total:arrayhref.length, Unique:arrayDuplicateNoRepeat.size};
+};
+
+const statsValidate = (arrayObject) => {
+  const arrayhref = arrayObject.map((file) => file.href);
+  const arrayDuplicateNoRepeat = new Set(arrayhref);
+  const broken = arrayObject.filter(file => file.ok==='fail')
+  return {Total:arrayhref.length, Unique:arrayDuplicateNoRepeat.size, Broken:broken.length};
+}; 
 
   // 5. Si es un directorio entramos a leer sus archivos y retorna un array con todos
 const readAllFileDirectory = (route, arrayOfFiles = []) => {
+ 
   const files = fs.readdirSync(route); // leemos cada uno de sus archivos o file
   files.forEach((file) => {
     const stat = fs.statSync(`${route}/${file}`);
@@ -56,26 +102,24 @@ const readAllFileDirectory = (route, arrayOfFiles = []) => {
       readAllFileDirectory(`${route}/${file}`, arrayOfFiles); // llamada recursiva
     } else {
       arrayOfFiles.push(`${route}/${file}`);
+      
     }
   });
-  return arrayOfFiles; // retorno un array con todos los archivos del directorio, paara
+  return arrayOfFiles; 
+  // retorno un array con todos los archivos del directorio, paara
   // luego validar sin son .md
 };  
 
-// Verificar si los archivos son md :
 
- 
-
-
-
-  // Probar si la ruta absoluta es un archivo o directorio
-  // si es un archivo devolver un arreglo de este archivo, pero si es un directirioo
-  // sera un arreglo con TODOS los archivos MD, si no hay archivos MD devuelve un array vacio
-  // y si es vacio entonces se rechaza la promesa
   module.exports = {
     existsRoute,
     routeAbsolute,
     isdirectory,
-    readAllFileDirectory
+    isMd,
+    readAllFileDirectory,
+    getLinks,
+    stats,
+    validate,
+    statsValidate
 
   }
