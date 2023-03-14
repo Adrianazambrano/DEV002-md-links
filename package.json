@@ -41,6 +41,7 @@
   "author": "Adriana Zambrano Caceres",
   "license": "ISC",
   "homepage": "https://github.com/Adrianazambrano/DEV002-md-links#readme",
+  
   "bin": {
     "md-links-adrianaz": "./src/cli.js"
   }
