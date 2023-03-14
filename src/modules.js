@@ -60,8 +60,6 @@ const isMd = (route) => {
    });
  };
 
-
-
 // para las estaditiscas de pasa directamnete el archivo .md o en caso
 // de ser directorio, el array de todos los archivos .md
 

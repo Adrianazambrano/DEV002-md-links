@@ -1,27 +1,45 @@
-
+#!/usr/bin/env node
 const process = require('process');
-const {mdLinks}= require('./index');
+const {mdLinks}= require('./index.js');
+//  const [, , ...args] = process.argv
 
 
-const route = process.argv[1]
-const optionUser = process.argv[2]
+const route = process.argv[2]
+const option1 = process.argv[3]
+ const option2 = process.argv[4]
 
-const options = optionUser.forEach((element) => {
-  if (element === "--validate") {
-    options = { validate: true, stats: false };
-  } else if (element === "--stats") {
-    options = { validate: false, stats: true };
-  } else if (element === "--stats --validate") {
-    options = { validate: true, stat: true };
-  } else if (element === undefined) {
-    options = { validate: false, stat: false };
-  }
-});
+if(route){
+  if (option1 === '--validate' && option2=== undefined) {
+     mdLinks(route,{validate:true, stats:false })
+    .then(result =>console.debug(result) )
+    .catch((error) => {
+        console.log(error)
+    })
+  } else if (option1 === '--stats' && option2 ===undefined ) {
+    mdLinks(route,{validate:false, stats:true })
+    .then(result => console.debug(result) )
+    .catch((error) => {
+        console.log(error)
+    })
+       } else if (option1 === '--stats' && option2 === '--validate' || option1 === '--validate'  && option2 === '--stats' ) {
+        mdLinks(route,{validate:true, stats:true })
+        .then(result => console.debug(result) )
+        .catch((error) => {
+            console.log(error)
+    })
+      } else if (option1 === undefined && option2===undefined) {
+        mdLinks(route,{validate:false, stats:false })
+        .then(result => console.debug(result) )
+        .catch((error) => {
+            console.log(error)
+        })
+      }
 
-mdLinks(prueba,options)
-.then(()=>{
+} else {
+  mdLinks(undefined)
+  .then(() => {} )
+  .catch((error) => {
+      console.log(error)
+  })
+}
 
-})
-.catch((error) => {
-    console.log(error)
-})

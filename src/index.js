@@ -14,17 +14,17 @@ const {existsRoute,
 } = require('./modules')
   // union de los modulos 
 
-const mdLinks = (pathRouter, options) => {
+const mdLinks = (router, options) => {
    return new Promise((resolve, reject) => {
       //1. Verificamos si se ingreso una ruta
-    if (pathRouter === undefined){
+    if (router === undefined ){
        reject('No has ingresado una ruta')
     }
      //2. Verificamos si la ruta existe
-    if (existsRoute(pathRouter)) {
+    if (existsRoute(router)) {
      
       //3. si la ruta existe convertirla en absoluta
-      const absoluteRoute = routeAbsolute(pathRouter);
+      const absoluteRoute = routeAbsolute(router);
     
       // 4.Verificamos si es un archivo o un directorio
       
@@ -37,7 +37,7 @@ const mdLinks = (pathRouter, options) => {
        const arrayObject = arrayAllFileMd.map((file)=>getLinks(file))
             
       if(options.validate === false && options.stats === false){
-          resolve( Promise.all(arrayObject))
+          resolve( Promise.all(arrayAplanado))
       } else if (options.validate === true && options.stats === false){
         const ArrayPromiseResolve = Promise.all(arrayObject);
         
@@ -104,11 +104,6 @@ const mdLinks = (pathRouter, options) => {
   });
 };
 
- mdLinks('../prueba',{validate:true , stats:true})
- .then((result) => console.debug(result) )
-        .catch((error) => {
-         console.log(error)
-       })
 
 module.exports = {
   mdLinks,
