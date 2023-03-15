@@ -37,7 +37,7 @@ const mdLinks = (router, options) => {
        const arrayObject = arrayAllFileMd.map((file)=>getLinks(file))
             
       if(options.validate === false && options.stats === false){
-          resolve( Promise.all(arrayAplanado))
+          resolve( Promise.all(arrayObject))
       } else if (options.validate === true && options.stats === false){
         const ArrayPromiseResolve = Promise.all(arrayObject);
         
